@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { Container, Row, Col, Form } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import Job from "./Job";
+import { useDispatch } from "react-redux";
+import { addFavourite } from "../redux/reducers/favouritesSlice";
 
 const MainSearch = () => {
   const [query, setQuery] = useState("");
   const [jobs, setJobs] = useState([]);
+  const dispatch = useDispatch();
 
-  const baseEndpoint = "https://strive-benchmark.herokuapp.com/api/jobs?search=";
+  const baseEndpoint =
+    "https://strive-benchmark.herokuapp.com/api/jobs?search=";
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setQuery(e.target.value);
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -27,6 +31,9 @@ const MainSearch = () => {
       console.log(error);
     }
   };
+  const handleAddToFavorites = (companyName) => {
+    dispatch(addFavourite(companyName));
+  };
 
   return (
     <Container>
@@ -36,12 +43,44 @@ const MainSearch = () => {
         </Col>
         <Col xs={10} className="mx-auto">
           <Form onSubmit={handleSubmit}>
-            <Form.Control type="search" value={query} onChange={handleChange} placeholder="type and press Enter" />
+            <Form.Control
+              type="search"
+              value={query}
+              onChange={handleChange}
+              placeholder="type and press Enter"
+            />
           </Form>
         </Col>
         <Col xs={10} className="mx-auto mb-5">
-          {jobs.map(jobData => (
-            <Job key={jobData._id} data={jobData} />
+          {jobs.map((jobData) => (
+            <Row
+              key={jobData._id}
+              className="mx-0 mt-3 p-3"
+              style={{ border: "1px solid #00000033", borderRadius: 4 }}
+            >
+              <Col xs={3}>
+                <a
+                  href={`/${jobData.company_name}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {jobData.company_name}
+                </a>
+              </Col>
+              <Col xs={6}>
+                <a href={jobData.url} target="_blank" rel="noreferrer">
+                  {jobData.title}
+                </a>
+              </Col>
+              <Col xs={3}>
+                <Button
+                  variant="primary"
+                  onClick={() => handleAddToFavorites(jobData.company_name)}
+                >
+                  Add to Favourites
+                </Button>
+              </Col>
+            </Row>
           ))}
         </Col>
       </Row>
